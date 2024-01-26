@@ -89,6 +89,19 @@ playTest(fileName);
 	public static int[][] evolve(int[][] board) {
 		int rows = board.length;
 		int cols = board[0].length; //length in arrys 1 (index 0)
+				/* 
+  		notice this general note, running on arr[0].length is right in this case because 
+		the matrix is a rectangle/square but in the case of a 2D array that does not necessarily have the
+		same row length in all rows this code will fail.
+		for example: arr = {
+			{1,2,3},
+			{4},
+			{5,6},
+			{8,9,10,11,12,13,14,15},
+			{}
+		}
+		because of that, we need to run on arr[i].length at each iteration
+  		*/
 		int [][] newBoard = new int[rows][cols]; //creating a new board variable
 		for (int i = 1; i< rows -1; i++){
 			for (int j = 1; j< cols-1; j++){
@@ -134,6 +147,7 @@ playTest(fileName);
 			{0,-1},           {0,1},
 			{1,-1}, {1,0},{1,1}};
 			int livingNeighbors = 0;
+			 // nice and elegant, LIKE!
 			for (int k = 0; k < neighbors.length; k++) {
 				int[] currentNeighbor = neighbors[k];
 				int row = i + currentNeighbor[0];
