@@ -1,3 +1,5 @@
+import java.lang.reflect.Array;
+
 /** 
  *  Game of Life.
  *  Usage: "java GameOfLife fileName"
@@ -8,13 +10,14 @@
 public class GameOfLife {
 
 	public static void main(String[] args) {
-		String fileName = args[0];
+		String fileName = "line.dat";
 		//// Uncomment the test that you want to execute, and re-compile.
 		//// (Run one test at a time).
-		//// test1(fileName);
-		//// test2(fileName);
-		//// test3(fileName, 3);
-		//// play(fileName);
+		///test1(fileName);
+		///test2(fileName);
+		///test3(fileName, 3);
+///play(fileName);
+playTest(fileName);
 	}
 	
 	// Reads the data file and prints the initial board.
@@ -22,14 +25,17 @@ public class GameOfLife {
 		int[][] board = read(fileName);
 		print(board);
 	}
+
 		
 	// Reads the data file, and runs a test that checks 
 	// the count and cellValue functions.
 	private static void test2(String fileName) {
 		int[][] board = read(fileName);
-		//// Write here code that tests that the count and cellValue functions
-		//// are working properly, and returning the correct values.
-	}
+		print(board);
+		System.out.println("count: " + count(board,2,2));
+		System.out.println("cell value: " + cellValue(board,2,2));
+}
+
 		
 	// Reads the data file, plays the game for Ngen generations, 
 	// and prints the board at the beginning of each generation.
@@ -60,19 +66,36 @@ public class GameOfLife {
 	// This function assumes that the input file contains valid data, and does no input testing.
 	public static int[][] read(String fileName) {
 		In in = new In(fileName); // Constructs an In object for reading the input file
-		int rows = Integer.parseInt(in.readLine());
-		int cols = Integer.parseInt(in.readLine());
+		int rows = Integer.parseInt(in.readLine()); //first line of the file -> how many rows
+		int cols = Integer.parseInt(in.readLine()); // second line of the file -> how many columns
 		int[][] board = new int[rows + 2][cols + 2];
-		//// Replace the following statement with your code.
-		return null;
+		for (int i=1; i<=rows; i++){
+			String line =in.readLine();
+			for (int j=1; j<=cols && j <= line.length(); j++){
+				char cellChar = line.charAt(j-1);
+				if (cellChar == 'x'){
+					board[i][j] = 1;
+				} else {
+					board[i][j] = 0;
+				}
+			}
+		}
+		return board;
 	}
 	
 	// Creates a new board from the given board, using the rules of the game.
 	// Uses the cellValue(board,i,j) function to compute the value of each 
 	// cell in the new board. Returns the new board.
 	public static int[][] evolve(int[][] board) {
-		//// Replace the following statement with your code.
-		return null;
+		int rows = board.length;
+		int cols = board[0].length; //length in arrys 1 (index 0)
+		int [][] newBoard = new int[rows][cols]; //creating a new board variable
+		for (int i = 1; i< rows -1; i++){
+			for (int j = 1; j< cols-1; j++){
+				newBoard[i][j] = cellValue(board, i, j);
+			}
+		}
+		return newBoard;
 	}
 
 	// Returns the value that cell (i,j) should have in the next generation.
@@ -85,8 +108,20 @@ public class GameOfLife {
 	// Assumes that j is at least 1 and at most the number of columns in the board - 1. 
 	// Uses the count(board,i,j) function to count the number of alive neighbors.
 	public static int cellValue(int[][] board, int i, int j) {
-		//// Replace the following statement with your code.
-		return 0;
+		int aliveNeighbors = count(board, i, j);
+		if (board[i][j] == 1){ // cell is alive (beginning)
+			if (aliveNeighbors < 2 || aliveNeighbors >3){
+				return 0; // cell dies
+			} else {
+				return 1; //cell remins alive
+			}
+		} else { // cell is dead (beginning)
+			if (aliveNeighbors == 3){
+				return 1; // become alive
+			} else {
+				return 0; // cell remins dead
+			}
+		}	
 	}
 	
 	// Counts and returns the number of living neighbors of the given cell
@@ -94,13 +129,35 @@ public class GameOfLife {
 	// Assumes that i is at least 1 and at most the number of rows in the board - 1. 
 	// Assumes that j is at least 1 and at most the number of columns in the board - 1. 
 	public static int count(int[][] board, int i, int j) {
-		//// Replace the following statement with your code.
-		return 0;
-	}
+		int [][] neighbors = {
+			{-1,-1}, {-1,0}, {-1,1},
+			{0,-1},           {0,1},
+			{1,-1}, {1,0},{1,1}};
+			int livingNeighbors = 0;
+			for (int k = 0; k < neighbors.length; k++) {
+				int[] currentNeighbor = neighbors[k];
+				int row = i + currentNeighbor[0];
+				int col = j + currentNeighbor[1];
+				
+				if (row >= 1 && row < board.length -1 && col >=1 && 
+					col < board[row].length -1){
+						if (board[row][col] == 1){
+							livingNeighbors++;
+						}
+					}
+			}
+			return livingNeighbors;
+		}
+
 	
 	// Prints the board. Alive and dead cells are printed as 1 and 0, respectively.
     public static void print(int[][] arr) {
-		//// Write your code here.
+		for (int i=1; i< arr.length-1; i++){
+			for (int j=1; j< arr[i].length-1; j++){
+				System.out.printf("%3s", arr[i][j]);
+			}
+			System.out.println();
+		}
 	}
 		
     // Displays the board. Living and dead cells are represented by black and white squares, respectively.
@@ -134,5 +191,41 @@ public class GameOfLife {
 		}
 		StdDraw.show();
 		StdDraw.pause(100); 
+	}
+
+	public static void show1(int[][] board) { //my testing 
+		StdDraw.setCanvasSize(900, 900);
+		int rows = board.length;
+		int cols = board[0].length;
+		StdDraw.setXscale(0, cols);
+		StdDraw.setYscale(0, rows);
+
+		// Enables drawing graphics in memory and showing it on the screen only when
+		// the StdDraw.show function is called.
+		StdDraw.enableDoubleBuffering();
+		
+		// For each cell (i,j), draws a filled square of size 1 by 1 (remember that the canvas was 
+		// already scaled to the dimensions rows by cols, which were read from the data file). 
+		// Uses i and j to calculate the (x,y) location of the square's center, i.e. where it
+		// will be drawn in the overall canvas. If the cell contains 1, sets the square's color
+		// to black; otherwise, sets it to white. In the RGB (Red-Green-Blue) color scheme used by
+		// StdDraw, the RGB codes of black and white are, respetively, (0,0,0) and (255,255,255).
+		for (int i = 0; i < rows; i++) {
+			for (int j = 0; j < cols; j++) {
+				int color = 255 * (1 - board[i][j]);
+				StdDraw.setPenColor(color, color, color);
+				StdDraw.filledRectangle(j + 0.5, rows - i - 0.5, 0.5, 0.5);
+			}
+		}
+		StdDraw.show();
+		StdDraw.pause(10000); 
+	}
+
+	public static void playTest(String fileName) { // play test with show1
+		int[][] board = read(fileName);
+		while (true) {
+			show1(board);
+			board = evolve(board);
+		}
 	}
 }
